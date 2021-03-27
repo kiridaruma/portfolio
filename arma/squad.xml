@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE squad SYSTEM "squad.dtd">
+<?xml-stylesheet href="squad.xsl?" type="text/xsl"?>
+<squad nick="">
+	<name>TRI Gaming</name>
+	<email></email>
+	<web>www.triserver.com</web>
+	<picture>icon.paa</picture>
+	<title>TRI</title>
+	<member id="76561198206015585" nick="kiridaruma">
+		<name>kiridaruma</name>
+		<email></email>
+		<icq></icq>
+		<remark></remark>
+	</member>
+</squad>
