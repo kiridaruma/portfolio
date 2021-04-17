@@ -2,11 +2,11 @@
 <!DOCTYPE squad SYSTEM "squad.dtd">
 <?xml-stylesheet href="squad.xsl?" type="text/xsl"?>
 <squad nick="">
-	<name>TRI Gaming</name>
+	<name>White Coat Battalion</name>
 	<email></email>
-	<web>www.triserver.com</web>
+	<web>www.kiridaruma.net</web>
 	<picture>icon.paa</picture>
-	<title>TRI</title>
+	<title>WCB</title>
 	<member id="76561198206015585" nick="kiridaruma">
 		<name>kiridaruma</name>
 		<email></email>
