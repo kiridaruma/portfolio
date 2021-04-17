@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE squad SYSTEM "squad.dtd">
 <?xml-stylesheet href="squad.xsl?" type="text/xsl"?>
-<squad nick="">
+<squad nick="WCB">
 	<name>White Coat Battalion</name>
 	<email></email>
 	<web>www.kiridaruma.net</web>
