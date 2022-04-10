@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+
+	<title>Reveal JS presentation</title>
+
+	<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+	<meta name="author" content="Hakim El Hattab">
+
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link rel="stylesheet" href="libs/reveal.js/4.1.3/reset.css">
+	<link rel="stylesheet" href="libs/reveal.js/4.1.3/reveal.css">
+
+	
+	
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+	  <!-- highlight Theme -->
+  	
+	  <link rel="stylesheet" href="libs/highlight.js/11.3.1/styles/monokai.min.css">
+	
+	
+		
+	<link rel="stylesheet" href="libs/reveal.js/4.1.3/plugin/chalkboard/style.css">
+	
+	
+	
+		<link rel="stylesheet" href="libs/reveal.js/4.1.3/plugin/customcontrols/style.css">
+	
+	<link rel="stylesheet" href="libs/styles/tasklist.css">
+
+
+
+  <!-- Revealjs Theme -->
+  
+  	<link rel="stylesheet" href="libs/reveal.js/4.1.3/theme/night.css" id="theme">
+  
+  
+
+
+  <!-- Revealjs Theme -->
+  
+
+ 
+</head>
+
+<body>
+  
+
+
+  <div class="reveal">
+
+    <!-- Any section element inside of this container is displayed as a slide -->
+    <div class="slides">
+
+      
+
+
+    
+        <section >
+            
+            <h3>並列で重い処理をブン回す</h3>
+<p>by kiridaruma at PHPer kaigi 2022</p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>自己紹介</h3>
+<p>@kiridaruma</p>
+<ul>
+<li>
+<p>1998/3/11生まれ</p>
+</li>
+<li>
+<p>ピクシブ株式会社</p>
+<ul>
+<li>WebのインフラやDB、ネットワーク周りを色々</li>
+</ul>
+</li>
+<li>
+<p>趣味でHaskell, Elm, Rust</p>
+<ul>
+<li>型やそれに関連した設計の話が好きです</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section data-background-image="./image/IMG_0178.JPG" data-background-opacity="0.5">
+            
+            <!-- .slide: data-background-image="./image/IMG_0178.JPG" data-background-opacity="0.5" -->
+<h3>自己紹介</h3>
+<p>@kiridaruma</p>
+<ul>
+<li>サブカル系DJ
+<ul>
+<li>アニソン、同人音楽、声優</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section data-background-image="./image/IMG_0104.JPG" data-background-opacity="0.5">
+            
+            <!-- .slide: data-background-image="./image/IMG_0104.JPG" data-background-opacity="0.5" -->
+<h3>自己紹介</h3>
+<p>@kiridaruma</p>
+<ul>
+<li>ミリタリー関連
+<ul>
+<li>米軍のマニュアル読んだり</li>
+<li>シミュレーターで遊んだり</li>
+<li>サバゲーしたり</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>自己紹介ここまで</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>並列で重い処理をブン回す</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>重い処理</h3>
+<ul>
+<li>Webサーバで処理が1秒を超えることはほぼない
+<ul>
+<li>それ以上遅い場合、大抵DBやネットワーク起因</li>
+</ul>
+</li>
+<li>ただし、バッチ処理で大量のデータを扱うと
+<ul>
+<li>さすがに遅くなる</li>
+<li>PHPじゃなくても遅くなる</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>時間がかかる原因</h3>
+<ul>
+<li>
+<p>原因はいろいろ</p>
+<ul>
+<li>計算量</li>
+<li>ディスク・ネットワークなど
+<ul>
+<li>CPU以外とのやり取り</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>原因によって対応方法が変わってくる</p>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>CPUが何をしているかの違い</h3>
+<ul>
+<li>
+<p>計算量が原因の場合</p>
+<ul>
+<li>CPUは<u>動いている</u></li>
+</ul>
+</li>
+<li>
+<p>ディスクやネットワークなどが原因の場合</p>
+<ul>
+<li>CPUは他の機器を<u>待っている</u></li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>CPUが動いているか待っているか</h3>
+<ul>
+<li>
+<p>基本的に計算量が大きい処理は速くできない</p>
+<ul>
+<li>計算量を減らすしかない</li>
+<li>処理を変える</li>
+</ul>
+</li>
+<li>
+<p>CPUが待っている時間が長い処理(IOなど)</p>
+<ul>
+<li>無駄なので効率よく処理を進めましょう</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>待ってる間に他の処理を進める</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>→Generator</h3>
+<h3>PHP8.1からはFiberも</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>GeneratorとFiber</h3>
+<ul>
+<li>「どう使うのか」は調べたら沢山出てくる
+<ul>
+<li>ここでは省略</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>実際にあった例</h3>
+<ul>
+<li>
+<p>Webページの表示速度の計測を行うバッチ</p>
+<ul>
+<li>WebAPIを利用する</li>
+</ul>
+</li>
+<li>
+<p>計測には時間がかかる</p>
+<ul>
+<li>まず計測するAPIを実行</li>
+<li>その後、結果を取得するAPIを実行
+<ul>
+<li>計測が完了するまでは結果取得を行い続ける</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>実際にあった例</h3>
+<ul>
+<li>
+<p>この場合、ボトルネックはCPUの外部にある</p>
+</li>
+<li>
+<p>計測対象のページは複数</p>
+</li>
+<li>
+<p>→Fiberでまとめて並行処理を行うようにした</p>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>Fiberで非同期/並行処理が簡単に</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>今回のタイトル</h3>
+<h3>並列で重い処理をブン回す</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3><u>並列で</u>重い処理をブン回す</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>並行と並列</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>並行</h3>
+<p>タスク1→タスク2→タスク3→タスク1→タスク2→…</p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>並列</h3>
+<p>タスク1→タスク1→タスク1→…<br>
+タスク2→タスク2→タスク2→…<br>
+タスク3→タスク3→タスク3→…</p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>並列</h3>
+<ul>
+<li>
+<p>基本的に計算量が大きい処理は速くできない</p>
+<ul>
+<li>同時に進めることはできる</li>
+</ul>
+</li>
+<li>
+<p>重い処理を同時に実行して全体を早くはできる</p>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>PHPで並列処理</h3>
+<ul>
+<li>
+<p>GeneratorもFiberも<u>並行</u>処理</p>
+<ul>
+<li>並列じゃないので、同時に実行はされない</li>
+</ul>
+</li>
+<li>
+<p>そもそもPHPだけでは並列処理できない</p>
+<ul>
+<li>PHPだけでは…</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>外部の力を借りよう</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>OSの力</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>スレッドとプロセス</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>OSの並列処理</h3>
+<ul>
+<li>
+<p>スレッド</p>
+<ul>
+<li>他スレッドとメモリを共有する</li>
+<li>上手くやらないと意図しない挙動を起こす</li>
+</ul>
+</li>
+<li>
+<p>プロセス</p>
+<ul>
+<li>他プロセスからメモリは隔離される</li>
+<li>入出力周りに気を付ければ何とかなる</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>PHPでスレッド</h3>
+<ul>
+<li>
+<p>pthreads</p>
+<ul>
+<li>昔からある</li>
+<li>もうサポートされていない</li>
+</ul>
+</li>
+<li>
+<p>parallel</p>
+<ul>
+<li>新しいやつ</li>
+<li>特にこだわりがなければこっち</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>PHPでスレッド</h3>
+<ul>
+<li>pthreadsもparallelもPHPのモジュール
+<ul>
+<li>なので別途有効化する必要がある</li>
+<li>場合によってはPHPの再ビルドも</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>PHPでプロセス</h3>
+<ul>
+<li>
+<p>標準でいくつか使える関数がある</p>
+</li>
+<li>
+<p>Linuxなら大体すぐ使える</p>
+<ul>
+<li>Windows/Macは一部動かない</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>スレッドとプロセス</h3>
+<ul>
+<li>
+<p>スレッドを<u>ちゃんと</u>動かすのは大変</p>
+</li>
+<li>
+<p>「プロセスよりスレッドの方が早いんでしょ？」</p>
+<ul>
+<li>そんな差はない(大抵は気が付かないレベル)</li>
+<li>そもそも重い処理をしてる時点で変わらない</li>
+</ul>
+</li>
+<li>
+<p>プロセスの方が扱いやすい</p>
+<ul>
+<li>メモリが隔離されてるのでバグを生みにくい</li>
+<li>プロセス間通信は少し考えないといけない</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>マルチスレッドは難しい</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>マルチプロセスの方が楽</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>マルチプロセスなコードの書き方</h3>
+<ul>
+<li>
+<p>基本的に2つのプロセスに分けて考える</p>
+<ul>
+<li>仕事をするプロセスを生成するプロセス</li>
+<li>実際に仕事をするプロセス</li>
+</ul>
+</li>
+<li>
+<p>よくあるミドルウェアもだいたい同じ構成</p>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>プロセスを生成する</h3>
+<ul>
+<li>
+<p>別プロセスを実行する関数</p>
+<ul>
+<li>exec(), passthru(), system()など</li>
+<li>popen()</li>
+<li>proc_open()</li>
+</ul>
+</li>
+<li>
+<p>色々ある</p>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>exec(), passthru(), system()など</h3>
+<ul>
+<li>一番簡単に外部コマンドを実行できる
+<ul>
+<li>ただし、外部コマンドの操作等はできない</li>
+<li>標準出力だけ取れる</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>popen()</h3>
+<ul>
+<li>ファイルと同じように読み書きできる
+<ul>
+<li>プロセスの標準入出力を扱える</li>
+<li>ただし、1方向(入力or出力)だけ</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>proc_open()</h3>
+<ul>
+<li>他の関数と比べて一番詳細に設定できる
+<ul>
+<li>標準入出力のパイプ</li>
+<li>カレントディレクトリの設定</li>
+<li>環境変数の設定</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>何を使うべきか</h3>
+<ul>
+<li>A. やりたいことによる
+<ul>
+<li>ので、php.netを良く読むのが良いです</li>
+<li>特に入出力が大きく違う(個人的意見)
+<ul>
+<li>ログの取り回し</li>
+<li>プロセスの制御</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>実際にあった例</h3>
+<ul>
+<li>DBで大規模なデータ移行の必要があった
+<ul>
+<li>テーブルのサイズの合計は4TB以上</li>
+<li>100億レコード以上</li>
+<li>愚直に回すと1ヶ月かかる計算</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>実際にあった例</h3>
+<ul>
+<li>
+<p>マルチプロセスで並列で実行した</p>
+</li>
+<li>
+<p>オンプレの専用の強いマシンを使用</p>
+<ul>
+<li>DBも同居している</li>
+<li>それでも処理に7日かかった</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>並列処理には強いマシンが必要</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>強いマシン</h3>
+<ul>
+<li>
+<p>オンプレ環境は調達すれば強いマシンが使える</p>
+<ul>
+<li>お金とスペースの許す限り強いマシンを</li>
+</ul>
+</li>
+<li>
+<p>クラウドの場合は分散させることが多い</p>
+<ul>
+<li>lambda, functions, cloud runなど</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>バッチの実行時間</h3>
+<ul>
+<li>
+<p>数分程度ならlambdaやfunctionsで回せる</p>
+</li>
+<li>
+<p>時間のかかる処理の場合はVMの方が良い場合も</p>
+<ul>
+<li>数時間や数日となるとコストが問題になる</li>
+<li>EC2, GCEなど</li>
+<li>こういうところで並列化が生きてくる</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>長時間のバッチでありがちなこと</h3>
+<ul>
+<li>
+<p>「あれ、良く分からないけど失敗してる」</p>
+<ul>
+<li>長時間かけて実行するバッチの場合は特に</li>
+</ul>
+</li>
+<li>
+<p>バッチ処理はログの出力が大事</p>
+<ul>
+<li>エラーが起きた時にすぐ気づけるように</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>ログの出力</h3>
+<ul>
+<li>
+<p>基本はプロセス毎にログを出力するのが楽</p>
+<ul>
+<li>プロセスごとに詳細なログが追える</li>
+<li>ファイル等に出力する場合、ロックに注意</li>
+<li>外部に送る場合はあまり考えなくてよい</li>
+</ul>
+</li>
+<li>
+<p>そもそもプロセス同士の依存を減らした方が楽</p>
+<ul>
+<li>複雑なプロセス間通信が必要な場合は要注意</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>シグナル</h3>
+<ul>
+<li>
+<p>シグナルハンドラは必ず設定する</p>
+<ul>
+<li>PHPの場合はpcntl_signal()など</li>
+</ul>
+</li>
+<li>
+<p>オンプレ/クラウド関わらずシグナル処理は大事</p>
+<ul>
+<li>killした時に子プロセスもまとめて止めるなど
+<ul>
+<li>親だけ止まって、子は動いてる状態などを防ぐ</li>
+</ul>
+</li>
+<li>インスタンス停止時にシグナルが送られるものも</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>終了の通知とexitコード</h3>
+<ul>
+<li>
+<p>正常終了時には0、異常終了時はそれ以外でexitする</p>
+<ul>
+<li>当たり前だけど重要</li>
+</ul>
+</li>
+<li>
+<p>異常終了したら通知する仕組みなどがあったり</p>
+<ul>
+<li>正常/異常問わず、終了に気づける</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>時間がかかるバッチ処理は面倒</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>時間を無駄にしないために</h3>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h3>(o・∇・o) &lt; おわりだよー</h3>
+
+            </section>
+    
+
+
+    </div>
+
+
+  </div>
+
+  	
+	<script src="libs/reveal.js/4.1.3/reveal.js"></script>
+	<script src="libs/reveal.js/4.1.3/plugin/zoom/zoom.js"></script>
+	<script src="libs/reveal.js/4.1.3/plugin/notes/notes.js"></script>
+	<script src="libs/reveal.js/4.1.3/plugin/search/search.js"></script>
+	<script src="libs/reveal.js/4.1.3/plugin/markdown/markdown.js"></script>
+	<script src="libs/reveal.js/4.1.3/plugin/highlight/highlight.js"></script>
+	<script src="libs/reveal.js/4.1.3/plugin/menu/menu.js"></script>
+	<script src="libs/reveal.js/4.1.3/plugin/math/math.js"></script>
+
+	<script src="libs/reveal.js/4.1.3/plugin/fullscreen/plugin.js"></script>
+  
+  	<script src="libs/reveal.js/4.1.3/plugin/animate/plugin.js"></script>
+  	<script src="libs/reveal.js/4.1.3/plugin/animate/svg.min.js"></script>
+  
+  	<script src="libs/reveal.js/4.1.3/plugin/anything/plugin.js"></script>
+	  <script src="libs/reveal.js/4.1.3/plugin/anything/Chart.min.js"></script>
+	<script src="libs/reveal.js/4.1.3/plugin/anything/d3/d3.v3.min.js"></script>				
+	<script src="libs/reveal.js/4.1.3/plugin/anything/d3.patch.js"></script>			
+	<script src="libs/reveal.js/4.1.3/plugin/anything/d3/queue.v1.min.js"></script>		
+	<script src="libs/reveal.js/4.1.3/plugin/anything/d3/topojson.v1.min.js"></script>		
+	<script src="libs/reveal.js/4.1.3/plugin/anything/function-plot.js"></script>
+
+ <!--	<script src="libs/reveal.js/4.1.3/plugin/audio-slideshow/plugin.js"></script>  -->
+<!--	<script src="libs/reveal.js/4.1.3/plugin/audio-slideshow/recorder.js"></script>-->
+<!--	<script src="libs/reveal.js/4.1.3/plugin/audio-slideshow/RecordRTC.js"></script>-->
+
+<script src="libs/reveal.js/4.1.3/plugin/chalkboard/plugin.js"></script>
+	<script src="libs/reveal.js/4.1.3/plugin/customcontrols/plugin.js"></script>
+	<script src="libs/reveal.js/4.1.3/plugin/embed-tweet/plugin.js"></script>
+
+	<script src="libs/reveal.js/4.1.3/plugin/chart/chart.min.js"></script>
+	<script src="libs/reveal.js/4.1.3/plugin/chart/plugin.js"></script>
+
+  <script>
+
+		const printPlugins = [
+			RevealNotes, 
+			RevealHighlight,
+			RevealMath,
+			RevealAnimate,
+			RevealChalkboard, 
+			RevealEmbedTweet,
+			RevealChart,
+		];
+
+		const plugins =  [...printPlugins,
+		RevealZoom, 
+		RevealSearch, 
+				RevealMarkdown, 
+				RevealMenu, 
+				RevealFullscreen,
+				RevealAnything,
+				//RevealAudioSlideshow,
+				//RevealAudioRecorder,
+				RevealCustomControls, 
+				// poll
+				// question
+				// seminar
+				 ]
+
+
+		// Also available as an ES module, see:
+		// https://revealjs.com/initialization/
+		Reveal.initialize({
+			controls: true,
+			controlsTutorial: true,
+			controlsLayout: 'bottom-right',
+			controlsBackArrows: 'faded',
+			progress: true,
+			slideNumber: false,
+			//#showSlideNumber "all" "print" "speaker"
+			hash: true,//#  hash: false,
+			//# respondToHashChanges: true,
+			//# history: false,
+			keyboard: true,
+			//#keyboardCondition: null,
+			overview: true,
+			center: true,
+			touch: true,
+			loop: false,
+			rtl: false,
+			//#navigationMode: 'default', linear grid
+			shuffle: false,
+			fragments: true,
+			fragmentInURL: false,
+			embedded: false,
+			help: true,
+			//#pause: true
+			showNotes: false,
+			autoPlayMedia: false, // TODO fix this to a nullable value
+			//#preloadIframes: null. true false
+			//#autoAnimate: true
+			//#autoAnimateMatcher: null,
+			//#autoAnimateEasing: 'ease',
+			//autoAnimateDuration: 1.0,
+			//#autoAnimateUnmatched: true
+			//#autoAnimateStyles: []
+			autoSlide: 0, // TODO fix this to a falseable value
+			autoSlideStoppable: true,
+			autoSlideMethod: '0',
+			defaultTiming: 120,
+			mouseWheel: false,
+			//#previewLinks: false
+			//#postMessage: true,  // TODO : this can cause issues with the vscode api ???
+			//#postMessageEvents: false,
+			//#focusBodyOnPageVisibilityChange: true,
+			transition: 'none',
+			transitionSpeed: 'default',
+			backgroundTransition: 'fade',
+			//#pdfMaxPagesPerSlide: Number.POSITIVE_INFINITY,
+			//#pdfSeparateFragments: true,
+			//#pdfPageHeightOffset: -1,
+			viewDistance: 3,
+			//#mobileViewDistance: 2,
+			display: 'block',
+			//#hideInactiveCursor: true,
+			//#hideCursorTime: 5000
+
+			// Parallax Background
+			parallaxBackgroundImage: '',
+			parallaxBackgroundSize: '',
+			parallaxBackgroundHorizontal: 0,
+			parallaxBackgroundVertical: 0,
+			
+			//Presentation Size
+			width: 960,
+			height: 700,
+			margin: 0.04,
+			minScale: 0.2,
+			maxScale: 2,
+			disableLayout: false,
+
+			audio: {
+				prefix: 'audio/', 	// audio files are stored in the "audio" folder
+				suffix: '.ogg',		// audio files have the ".ogg" ending
+				textToSpeechURL: null,  // the URL to the text to speech converter
+				defaultNotes: false, 	// use slide notes as default for the text to speech converter
+				defaultText: false, 	// use slide text as default for the text to speech converter
+				advance: 0, 		// advance to next slide after given time in milliseconds after audio has played, use negative value to not advance
+				autoplay: false,	// automatically start slideshow
+				defaultDuration: 5,	// default duration in seconds if no audio is available
+				defaultAudios: true,	// try to play audios with names such as audio/1.2.ogg
+				playerOpacity: 0.05,	// opacity value of audio player if unfocused
+				playerStyle: 'position: fixed; bottom: 4px; left: 25%; width: 50%; height:75px; z-index: 33;', // style used for container of audio controls
+				startAtFragment: false, // when moving to a slide, start at the current fragment or at the start of the slide
+			},
+			
+			chalkboard: { // font-awesome.min.css must be available
+					//src: "chalkboard/chalkboard.json",
+					storage: "chalkboard-demo",
+				},
+			
+			customcontrols: {
+					controls: [
+      						{
+						  id: 'toggle-overview',
+						  title: 'Toggle overview (O)',
+						  icon: '<i class="fa fa-th"></i>',
+						  action: 'Reveal.toggleOverview();'
+						}
+						,
+						{ icon: '<i class="fa fa-pen-square"></i>',
+						  title: 'Toggle chalkboard (B)',
+						  action: 'RevealChalkboard.toggleChalkboard();'
+						},
+						{ icon: '<i class="fa fa-pen"></i>',
+						  title: 'Toggle notes canvas (C)',
+						  action: 'RevealChalkboard.toggleNotesCanvas();'
+						}
+				]
+			},
+			chart: {
+					defaults: { 
+						color: 'lightgray', // color of labels
+						scale: { 
+							beginAtZero: true, 
+							ticks: { stepSize: 1 },
+							grid: { color: "lightgray" } , // color of grid lines
+						},
+					},
+					line: { borderColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ], "borderDash": [ [5,10], [0,0] ] }, 
+					bar: { backgroundColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ]}, 
+					pie: { backgroundColor: [ ["rgba(0,0,0,.8)" , "rgba(220,20,20,.8)", "rgba(20,220,20,.8)", "rgba(220,220,20,.8)", "rgba(20,20,220,.8)"] ]},
+					radar: { borderColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ]}, 
+			},
+			math: {
+				mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.8/MathJax.js',
+				config: 'TeX-AMS_HTML-full',
+				// pass other options into `MathJax.Hub.Config()`
+				TeX: { Macros: { RR: "{\\bf R}" } }
+				},
+				anything: [ 
+				{
+		className: "plot",
+		defaults: {width:500, height: 500, grid:true},
+		initialize: (function(container, options){ options.target = "#"+container.id; functionPlot(options) })
+	 },
+	 {
+		className: "chart",  
+		initialize: (function(container, options){ container.chart = new Chart(container.getContext("2d"), options);  })
+	 },
+	 {
+		className: "anything",
+		initialize: (function(container, options){ if (options && options.initialize) { options.initialize(container)} })
+	 },
+					],
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: (window.location.search.match(/print-pdf/gi) ? printPlugins : plugins ) 
+		});
+			
+
+
+	    // Change chalkboard theme : 
+		function changeTheme(input) {
+			var config = {};
+			config.theme = input.value;
+			Reveal.getPlugin("RevealChalkboard").configure(config);
+			input.blur();
+		}
+
+		// // Handle the message inside the webview
+        // window.addEventListener('message', event => {
+
+        //     const message = event.data; // The JSON data our extension sent
+
+        //     switch (message.command) {
+        //         case 'refactor':
+        //             Reveal.toggleHelp();
+        //     }
+        // });
+
+		if (window.location.search.match(/print-pdf-now/gi)) {
+      		setTimeout(() => {
+				window.print();
+			  }, 2500);
+			
+    }
+		
+
+	</script>
+
+</body>
+
+</html>
